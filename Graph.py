@@ -4,7 +4,6 @@ import numpy as np
 
 
 class Adj_list(List.Linked_list): 
-
     def print(self):  # surcharge la methode print des listes pour afficher les noms des noeuds
         print("Liste d'adjacence = ",end='')
         current=self.head
