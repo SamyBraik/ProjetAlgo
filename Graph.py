@@ -71,36 +71,35 @@ class Graph:
                 if not c[v]:
                     c[v]=1
                     p[v]=u
-                    f.enqueue(v)
                     if v == t:
                         return True
+                    f.enqueue(v)
                 current=current.next
             c[u]=2
         return False
     
 
     def EdmondKarp(self,source,puit):
-        p=[-1]*self.size 
-        flow = 0
+        p = [-1]*self.size #Track les noeuds déjà visité
+        maxFlow = 0
+        
+        #Tant qu'il y a un chemin entre la source et le puit, on augmente le flot
+        while self.BFS(source,puit,p):
+            currentFlow = float("Inf")
+            s = puit
+            while s!=source:
+                currentFlow = min (currentFlow, self._weight[p[s]][s])
+                s = p[s]
+            maxFlow += currentFlow
 
-        while self.BFS(source,puit,p)==True: #Tant qu'il y a un chemin entre la source et le puit on essaye d'augmenter le flow
-            current_flow = float('inf')
-            t = puit
-            while t!=source:
-                current_flow = min(current_flow,self._flow[p[t]][[t]])
-                t = p[t]
-
-        flow += current_flow
-        u = puit
-        while u!=source:
-            v = p[u]
-            self.flow[v][u] -= current_flow
-            self.flow[u][v] += current_flow
-            u = p[v]
-
-        return flow
-    
-
+            y = puit
+            while y!=source:
+                x = p[y]
+                self._flow[x][y] -= currentFlow
+                self._flow[y][x] += currentFlow
+                y=p[y]
+            print(maxFlow)
+        return maxFlow
     
                 
 ################################  Tests  ################################## 
@@ -108,8 +107,8 @@ class Graph:
 l=[0,1,2,3,4,5]
 edg = [(0,1,11),(0,2,12),(2,1,1),(1,3,12),(2,4,11),(4,3,7),(3,5,19),(4,5,4)]
 
-g2=Graph(l,edg)
+g=Graph(l,edg)
 
 source = 0 
 puit = 5
-print(g2.EdmondKarp(source,puit))
+print(g.EdmondKarp(source,puit))
