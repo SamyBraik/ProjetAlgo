@@ -68,7 +68,7 @@ class Graph:
             current=self.nodes[u].adj.head
             while current :
                 v=current.data.head.index
-                if not c[v] and self._weight[u][v]:
+                if not c[v] and abs(self._weight[u][v]-self._flow[u][v])>0:
                     c[v]=1
                     p[v]=u
                     if v == t:
@@ -80,17 +80,19 @@ class Graph:
     
 
     def EdmondKarp(self,source,puit):
-        residual_graph = Graph(l,[(u,v,abs(self._weight[u][v]-self._flow[u][v])) for u in l for v in l if u!=v])
-        p = [-1]*self.size #Track les noeuds déjà visité
-        maxFlow = 0
+        #Construction du graphe résiduel
+        residual_graph = Graph(l[0],[(u,v,abs(self._weight[u][v]-self._flow[u][v])) for u in l[0] for v in l[0] if u!=v])
+        p = [-1]*self.size #Garde en mémoire les noeuds déjà visité
+        maxFlow = 0 #Initialisation du flot à 0
         
-        #Tant qu'il y a un chemin entre la source et le puit, on augmente le flot
+        #Tant qu'il y a un chemin entre la source et le puit qui augmente le flot
         while residual_graph.BFS(source,puit,p):
             currentFlow = float("Inf")
             s = puit
             while s!=source:
                 currentFlow = min (currentFlow, residual_graph._weight[p[s]][s])
                 s = p[s]
+
             maxFlow += currentFlow
 
             y = puit
@@ -98,18 +100,19 @@ class Graph:
                 x = p[y]
                 residual_graph._weight[x][y] -= currentFlow
                 residual_graph._weight[y][x] += currentFlow
+                self._flow[x][y]+=currentFlow
                 y=p[y]
         return maxFlow
     
                 
 ################################  Tests  ################################## 
 
-l=[0,1,2,3,4,5]
-edg = [(0,1,11),(0,2,12),(2,1,1),(1,3,12),(2,4,11),(4,3,7),(3,5,19),(4,5,4)]
+l=[[0,1,2,3,4,5,6,7],[(0,1,5),(0,2,4),(1,3,7),(2,3,3),(3,4,3),(4,5,4),(4,6,6),(5,7,2),(6,7,8)]]
 
-g=Graph(l,edg)
+g=Graph(l[0],l[1])
 
 parent = [-1]*len(l)
-source = 0 
-puit = 5
+source = l[0][0]
+puit = l[0][len(l[0])-1]
 print(g.EdmondKarp(source,puit))
+
