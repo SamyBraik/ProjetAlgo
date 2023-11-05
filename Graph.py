@@ -68,7 +68,7 @@ class Graph:
             current=self.nodes[u].adj.head
             while current :
                 v=current.data.head.index
-                if not c[v]:
+                if not c[v] and self._weight[u][v]:
                     c[v]=1
                     p[v]=u
                     if v == t:
@@ -80,25 +80,25 @@ class Graph:
     
 
     def EdmondKarp(self,source,puit):
+        residual_graph = Graph(l,[(u,v,abs(self._weight[u][v]-self._flow[u][v])) for u in l for v in l if u!=v])
         p = [-1]*self.size #Track les noeuds déjà visité
         maxFlow = 0
         
         #Tant qu'il y a un chemin entre la source et le puit, on augmente le flot
-        while self.BFS(source,puit,p):
+        while residual_graph.BFS(source,puit,p):
             currentFlow = float("Inf")
             s = puit
             while s!=source:
-                currentFlow = min (currentFlow, self._weight[p[s]][s])
+                currentFlow = min (currentFlow, residual_graph._weight[p[s]][s])
                 s = p[s]
             maxFlow += currentFlow
 
             y = puit
             while y!=source:
                 x = p[y]
-                self._flow[x][y] -= currentFlow
-                self._flow[y][x] += currentFlow
+                residual_graph._weight[x][y] -= currentFlow
+                residual_graph._weight[y][x] += currentFlow
                 y=p[y]
-            print(maxFlow)
         return maxFlow
     
                 
@@ -109,6 +109,7 @@ edg = [(0,1,11),(0,2,12),(2,1,1),(1,3,12),(2,4,11),(4,3,7),(3,5,19),(4,5,4)]
 
 g=Graph(l,edg)
 
+parent = [-1]*len(l)
 source = 0 
 puit = 5
 print(g.EdmondKarp(source,puit))
