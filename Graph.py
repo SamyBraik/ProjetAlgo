@@ -31,8 +31,8 @@ class Graph:
     def __init__(self,l=[],edg=[]):  # l est optionnel : liste ne noms de noeuds
         self.size = len(l)
         self.nodes=list()
-        self._weight = np.zeros((self.size,self.size),int)
-        self._flow = np.zeros((self.size,self.size),int)
+        self._weight = np.zeros((self.size,self.size),float)
+        self._flow = np.zeros((self.size,self.size),float)
         for i in range(len(l)):
             n=Node(i,l[i])
             self.nodes.append(n)
@@ -50,12 +50,10 @@ class Graph:
         for n in self.nodes:
             print('Noeud :', n.index,n.name )
             n.adj.print()
-
-    #Property nous permet d'utiliser la notion de graphe résiduel
     
 
     #On implemente un parcours en largeur qui va de la source jusqu'au puit
-    #Si un chemin existe il renvoie True sinon False
+    #Si un chemin existe et a une capacité résiduelle minimum strictement positive renvoyer True sinon False
     def BFS(self,s,t,p):
         n=self.size
         c=[0]*n  # code couleur blanc=0 (Faux), gris=1 (Vrai), noir=2 (Vrai)
