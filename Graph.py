@@ -79,7 +79,8 @@ class Graph:
 
     def EdmondKarp(self,source,puit):
         #Construction du graphe résiduel
-        residual_graph = Graph(l[0],[(u,v,abs(self._weight[u][v]-self._flow[u][v])) for u in l[0] for v in l[0] if u!=v])
+        l = [i for i in range(self.size)]
+        residual_graph = Graph(l,[(u,v,abs(self._weight[u][v]-self._flow[u][v])) for u in l for v in l if u!=v])
         p = [-1]*self.size #Garde en mémoire les noeuds déjà visité
         maxFlow = 0 #Initialisation du flot à 0
         
