@@ -2,7 +2,6 @@ import List
 import Queue
 import numpy as np
 
-
 class Adj_list(List.Linked_list): 
     def print(self):  # surcharge la methode print des listes pour afficher les noms des noeuds
         print("Liste d'adjacence = ",end='')
@@ -28,17 +27,18 @@ class Edge:
 
 
 class Graph:
-    def __init__(self,l=[],edg=[]):  # l est optionnel : liste ne noms de noeuds
+    def __init__(self,l=[]):  # l est optionnel : liste le noms de noeuds
         self.size = len(l)
         self.nodes=list()
-        self._weight = np.zeros((self.size,self.size),float)
-        self._flow = np.zeros((self.size,self.size),float)
+        self.weight = np.zeros((self.size,self.size),int)
+        self.flow = np.zeros((self.size,self.size),int)
+        self.residual_graph = np.zeros((self.size,self.size),int)
         for i in range(len(l)):
             n=Node(i,l[i])
             self.nodes.append(n)
-        for i in range(len(edg)):
-            self.add_edge(edg[i][0],edg[i][1])
-            self._weight[edg[i][0]][edg[i][1]] = edg[i][2]
+        # for i in range(len(edg)):
+        #     self.add_edge(edg[i][0],edg[i][1])
+        #     self._weight[edg[i][0]][edg[i][1]] = edg[i][2]
 
  
     def add_edge(self,i,j):
@@ -66,7 +66,7 @@ class Graph:
             current=self.nodes[u].adj.head
             while current :
                 v=current.data.head.index
-                if not c[v] and abs(self._weight[u][v]-self._flow[u][v])>0:
+                if not c[v] and abs(self.residual_graph[u][v])>0:
                     c[v]=1
                     p[v]=u
                     if v == t:
@@ -76,42 +76,37 @@ class Graph:
             c[u]=2
         return False
     
-
-    def EdmondKarp(self,source,puit):
+    
+    def EdmondsKarp(self,source,puit):
         #Construction du graphe résiduel
-        l = [i for i in range(self.size)]
-        residual_graph = Graph(l,[(u,v,abs(self._weight[u][v]-self._flow[u][v])) for u in l for v in l if u!=v])
+        # l = [i for i in range(self.size)]
+        # residual_graph = Graph(l)
+        # edg = [(u,v) for u in l for v in l if u!=v]
+        # for x in edg:
+        #     residual_graph.add_edge(x[0],x[1])
+        #     residual_graph._weight[x[0]][x[1]]=int(abs(self._weight[x[0]][x[1]]-self._flow[x[0]][x[1]]))
+        self.residual_graph = self.weight
+
+
         p = [-1]*self.size #Garde en mémoire les noeuds déjà visité
         maxFlow = 0 #Initialisation du flot à 0
         
         #Tant qu'il y a un chemin entre la source et le puit qui augmente le flot
-        while residual_graph.BFS(source,puit,p):
+        while self.BFS(source,puit,p):
             currentFlow = float("Inf")
             s = puit
             while s!=source:
-                currentFlow = min (currentFlow, residual_graph._weight[p[s]][s])
+                currentFlow = min (currentFlow, self.residual_graph[p[s]][s])
                 s = p[s]
+        
 
             maxFlow += currentFlow
 
             y = puit
             while y!=source:
                 x = p[y]
-                residual_graph._weight[x][y] -= currentFlow
-                residual_graph._weight[y][x] += currentFlow
-                self._flow[x][y]+=currentFlow
+                self.residual_graph[x][y] -= currentFlow
+                self.residual_graph[y][x] += currentFlow
+                self.flow[x][y]+=currentFlow
                 y=p[y]
         return maxFlow
-    
-                
-################################  Tests  ################################## 
-
-l=[[0,1,2,3,4,5,6,7],[(0,1,5),(0,2,4),(1,3,7),(2,3,3),(3,4,3),(4,5,4),(4,6,6),(5,7,2),(6,7,8)]]
-
-g=Graph(l[0],l[1])
-
-parent = [-1]*len(l)
-source = l[0][0]
-puit = l[0][len(l[0])-1]
-print(g.EdmondKarp(source,puit))
-
